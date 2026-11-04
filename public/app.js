@@ -257,7 +257,8 @@ if (T) {
     drawHero();
   }
 
-  var serviceScene = initScene(q("#servicesCanvas"), "services");
+  var serviceFocusTarget = 0;
+var serviceScene = initScene(q("#servicesCanvas"), "services");
   if (serviceScene) {
     var xPositions = [-4.65, -2.35, 0, 2.35, 4.65];
     var keys = ["leads", "design", "content", "seo", "marketing"];
@@ -294,10 +295,27 @@ if (T) {
           item.model.scale.setScalar(item.model.scale.x + ((item.model.userData.selected ? .78 : .7) - item.model.scale.x) * .04);
         }
       });
+      serviceScene.camera.position.x += (serviceFocusTarget - serviceScene.camera.position.x) * .045;
+      serviceScene.camera.lookAt(serviceFocusTarget, -.25, 0);
       serviceScene.renderer.render(serviceScene.scene, serviceScene.camera);
     }
     drawServices();
   }
+  window.addEventListener("scroll", function () {
+    var progress = Math.max(0, Math.min(1, (window.innerHeight - q("#services").getBoundingClientRect().top) / (window.innerHeight + q("#services").offsetHeight)));
+    var heroProgress = Math.max(0, Math.min(1, window.scrollY / Math.max(1, window.innerHeight)));
+    if (hero) {
+      hero.camera.position.z = 8.8 + heroProgress * 2.1;
+      hero.camera.position.y = 1.1 + heroProgress * .3;
+      hero.camera.lookAt(0, .1, 0);
+    }
+    var canvasWidth = q("#servicesCanvas").clientWidth;
+    var canvasHeight = q("#servicesCanvas").clientHeight;
+    var baseZ = Math.max(13, 9.7 / Math.max(.58, canvasWidth / Math.max(1, canvasHeight)));
+    serviceScene.camera.position.z = baseZ - progress * 1.6;
+    serviceScene.camera.position.y = (canvasWidth < 560 ? 2.8 : 2.35) - progress * .22;
+    serviceScene.camera.updateProjectionMatrix();
+  }, { passive: true });
 } else {
   q("#heroCanvas").classList.add("webgl-unavailable");
   q("#servicesCanvas").classList.add("webgl-unavailable");
@@ -316,6 +334,8 @@ function openService(key) {
     li.textContent = text;
     list.appendChild(li);
   });
+  var focusMap = { leads: -4.65, design: -2.35, content: 0, seo: 2.35, marketing: 4.65 };
+  serviceFocusTarget = focusMap[key] * .34;
   q("#serviceDetail").classList.add("open");
   qa(".service-hotspot").forEach(function (b) {
     b.classList.toggle("active", b.dataset.service === key);
@@ -323,6 +343,7 @@ function openService(key) {
   characters.forEach(function (c) { c.model.userData.selected = c.key === key; });
 }
 function closeService() {
+  serviceFocusTarget = 0;
   q("#serviceDetail").classList.remove("open");
   qa(".service-hotspot").forEach(function (b) { b.classList.remove("active"); });
   characters.forEach(function (c) { c.model.userData.selected = false; });

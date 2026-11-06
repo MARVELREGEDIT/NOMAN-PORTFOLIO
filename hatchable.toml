@@ -1,0 +1,5 @@
+# Hatchable project manifest. This file marks the folder as a
+# Hatchable project and declares the services it uses.
+# Reference: https://hatchable.com/docs/developers/config
+name = "Nouman Tariq — Immersive 3D Portfolio"
+description = "A premium blue-and-white interactive 3D portfolio for Nouman Tariq, featuring five service mascots, scroll storytelling, a playable lead-discovery mini-game, portfolio filtering, and a working inquiry form."
